@@ -16,6 +16,7 @@ class AuthRepository implements AuthRepositoryInterface
         return User::create([
             'name'     => $data['name'],
             'email'    => $data['email'],
+            'date_naissance' => $data['date_naissance'],
             'password' => bcrypt($data['password']),
         ]);
     }
