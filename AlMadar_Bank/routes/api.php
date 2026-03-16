@@ -1,8 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProfileController;
 /*
 |--------------------------------------------------------------------------
@@ -15,19 +13,18 @@ use App\Http\Controllers\Api\ProfileController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
 
-Route::post('register', [AuthController::class, 'register']);
-Route::post('login', [AuthController::class, 'login']);
 
-Route::middleware('auth:api')->group(function () {
+use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Route;
 
-    Route::post('logout', [AuthController::class, 'logout']);
+Route::prefix('auth')->group(function () {
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login',    [AuthController::class, 'login']);
 
-    Route::get('/me', [ProfileController::class, 'me']);
-    Route::put('/me', [ProfileController::class, 'updateProfile']);
-    Route::put('/me/password', [ProfileController::class, 'updatePassword']);
-    Route::delete('/me', [ProfileController::class, 'destroy']);
+    Route::middleware('auth:api')->group(function () {
+        Route::post('logout',  [AuthController::class, 'logout']);
+        Route::post('refresh', [AuthController::class, 'refresh']);
+        Route::get('me',       [AuthController::class, 'me']);
+    });
 });
