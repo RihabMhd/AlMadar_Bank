@@ -7,7 +7,8 @@ use App\Repositories\AuthRepository;
 use App\Repositories\AuthRepositoryInterface;
 use App\Repositories\ProfileRepositoryInterface;
 use App\Repositories\ProfileRepository;
-
+use App\Repositories\AccountRepository;
+use App\Repositories\AccountRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ProfileRepositoryInterface::class,
             ProfileRepository::class
+        );
+
+        $this->app->bind(
+            AccountRepositoryInterface::class,
+            AccountRepository::class
         );
     }
 

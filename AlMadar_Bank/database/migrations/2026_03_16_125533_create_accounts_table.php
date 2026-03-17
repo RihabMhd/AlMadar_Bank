@@ -22,7 +22,7 @@ return new class extends Migration
             $table->decimal('interest_rate', 5, 2)->nullable(); 
             $table->decimal('monthly_fee', 10, 2)->default(0.00);
 
-            $table->string('block_reason')->nullable(); // Règle 2.8
+            $table->string('block_reason')->nullable(); 
             $table->timestamps();
         });
     }

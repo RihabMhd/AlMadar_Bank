@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Models\Account;
+use Illuminate\Support\Collection;
+
+interface AccountRepositoryInterface 
+{
+    public function all(): Collection;
+    public function findById(int $id): ?Account;
+    public function create(array $data): Account;
+    public function updateType(Account $account): Account; 
+    public function addCoHolder(Account $account, int $userId): void;
+    public function removeCoHolder(Account $account, int $userId): void;
+    public function closeAccount(Account $account): void;
+}
