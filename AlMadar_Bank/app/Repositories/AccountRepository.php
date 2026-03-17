@@ -21,9 +21,10 @@ class AccountRepository implements AccountRepositoryInterface
 
     public function create(array $data): Account
     {
-        $account= Account::create($data);
+        $data['rib'] = 'MA' . strtoupper(uniqid()) . rand(100, 999);
+        $account = Account::create($data);
         $role = ($data['type'] === 'Mineur') ? 'guardian' : 'owner';
-        $account->users()->attach(auth()->id(),[
+        $account->users()->attach(auth()->id(), [
             'relation_type' => $role,
             'accepted_closure' => false
         ]);
@@ -39,10 +40,10 @@ class AccountRepository implements AccountRepositoryInterface
 
     public function addCoHolder(Account $account, int $userId): void
     {
-            $account->users()->attach($userId, [
-                'relation_type' => 'owner',
-                'accepted_closure' => false
-            ]);
+        $account->users()->attach($userId, [
+            'relation_type' => 'owner',
+            'accepted_closure' => false
+        ]);
     }
 
     public function removeCoHolder(Account $account, int $userId): void

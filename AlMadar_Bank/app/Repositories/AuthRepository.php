@@ -15,7 +15,7 @@ class AuthRepository implements AuthRepositoryInterface
     public function create(array $data): User
     {
         return User::create([
-            'nom'            => $data['name'],
+            'nom'            => $data['nom'],
             'prenom'         => $data['prenom'] ?? '',
             'email'    => $data['email'],
             'date_naissance' => $data['date_naissance'] ?? null,

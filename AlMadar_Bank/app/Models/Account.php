@@ -12,7 +12,7 @@ class Account extends Model
 
 
     public function users(){
-        return $this->belongsToMany(User::class,'account_users')->withPivot('id', 'relation_type', 'accepted_closure');
+        return $this->belongsToMany(User::class,'account_user')->withPivot('id', 'relation_type', 'accepted_closure');
     }
 
     // public function transactions(){

@@ -59,6 +59,6 @@ class User extends Authenticatable implements JWTSubject
 
     public function accounts()
     {
-        return $this->belongsToMany(Account::class, 'account_users')->withPivot('id', 'relation_type', 'accepted_closure');
+        return $this->belongsToMany(Account::class, 'account_user')->withPivot('id', 'relation_type', 'accepted_closure');
     }
 }

@@ -27,7 +27,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('accounts/{id}',                         [AccountController::class, 'show']);        
     Route::post('accounts/{id}/co-owners',              [AccountController::class, 'addMember']);
     Route::delete('accounts/{id}/co-owners/{userId}',   [AccountController::class, 'removeMember']); 
-    Route::post('accounts/{id}/guardian',               [AccountController::class, 'assignGuardian']); 
     Route::patch('accounts/{id}/convert',               [AccountController::class, 'convertAccount']); 
     Route::delete('accounts/{id}',                      [AccountController::class, 'requestClosure']);
 });

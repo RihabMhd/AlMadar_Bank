@@ -19,13 +19,21 @@ class AccountController extends Controller
         $this->accountService = $accountService;
     }
 
+    public function index(): JsonResponse
+    {
+        try {
+            $accounts = $this->accountService->getAllAccounts();
+            return response()->json($accounts);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
+    }
 
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'type' => 'required|string|in:Courant,Mineur',
-            'name' => 'required|string|max:255',
-            'balance' => 'required|numeric|min:0'
+            'balance' => 'sometimes|numeric|min:0'
         ]);
 
         if ($validator->fails()) {

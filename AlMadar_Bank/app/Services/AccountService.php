@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Account;
 use App\Repositories\AccountRepositoryInterface;
 use Exception;
+use Illuminate\Support\Collection;
 
 class AccountService
 {
@@ -15,11 +16,16 @@ class AccountService
         $this->accountRepository = $accountRepository;
     }
 
+    public function getAllAccounts(): Collection
+    {
+        return $this->accountRepository->all();
+    }
+
     public function storeAccount(array $data): Account
     {
         return $this->accountRepository->create($data);
     }
-    
+
     public function getAccount(int $id): Account
     {
         $account = $this->accountRepository->findById($id);
