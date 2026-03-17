@@ -22,8 +22,10 @@ class UpdateProfile extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . auth()->id(),
+            'nom'            => 'sometimes|string|max:255',
+            'prenom'         => 'sometimes|string|max:255',
+            'email'          => 'sometimes|email|unique:users,email,' . auth()->id(),
+            'date_naissance' => 'sometimes|date',
         ];
     }
 }
