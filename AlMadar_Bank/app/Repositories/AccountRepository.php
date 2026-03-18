@@ -3,15 +3,14 @@
 namespace App\Repositories;
 
 use App\Models\Account;
-use App\Repositories\AccountRepositoryInterface;
+use App\Models\User;
 use Illuminate\Support\Collection;
 
 class AccountRepository implements AccountRepositoryInterface
 {
-
-    public function all(): Collection
+    public function allForUser(int $userId): Collection
     {
-        return Account::all();
+        return Account::whereHas('users', fn($q) => $q->where('user_id', $userId))->get();
     }
 
     public function findById(int $id): ?Account
@@ -23,10 +22,11 @@ class AccountRepository implements AccountRepositoryInterface
     {
         $data['rib'] = 'MA' . strtoupper(uniqid()) . rand(100, 999);
         $account = Account::create($data);
-        $role = ($data['type'] === 'Mineur') ? 'guardian' : 'owner';
+
+        $role = ($data['type'] === 'MINEUR') ? 'guardian' : 'owner';
         $account->users()->attach(auth()->id(), [
-            'relation_type' => $role,
-            'accepted_closure' => false
+            'relation_type'    => $role,
+            'accepted_closure' => false,
         ]);
 
         return $account;
@@ -41,8 +41,8 @@ class AccountRepository implements AccountRepositoryInterface
     public function addCoHolder(Account $account, int $userId): void
     {
         $account->users()->attach($userId, [
-            'relation_type' => 'owner',
-            'accepted_closure' => false
+            'relation_type'    => 'owner',
+            'accepted_closure' => false,
         ]);
     }
 
@@ -51,18 +51,25 @@ class AccountRepository implements AccountRepositoryInterface
         $account->users()->detach($userId);
     }
 
+    public function acceptClosure(Account $account, int $userId): void
+    {
+        $account->users()->updateExistingPivot($userId, ['accepted_closure' => true]);
+    }
+
     public function closeAccount(Account $account): void
     {
+        if ($account->balance > 0) {
+            throw new \Exception("Balance must be zero before closing.");
+        }
+
         $holders = $account->users()->get();
 
-        $allAgreed = $holders->every(function ($user) {
-            return $user->pivot->accepted_closure == true;
-        });
+        $allAgreed = $holders->every(fn($user) => $user->pivot->accepted_closure == true);
 
-        if ($allAgreed) {
-            $account->update(['status' => 'CLOSED']);
-        } else {
+        if (!$allAgreed) {
             throw new \Exception("All holders must accept the closure.");
         }
+
+        $account->update(['status' => 'CLOSED']);
     }
 }
