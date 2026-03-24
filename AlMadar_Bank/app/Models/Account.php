@@ -15,12 +15,18 @@ class Account extends Model
         return $this->belongsToMany(User::class,'account_user')->withPivot('id', 'relation_type', 'accepted_closure');
     }
 
-    // public function transactions(){
-    //     return $this->hasMany(Transaction::class);
-    // }
+    public function transactions(){
+        return $this->hasMany(Transaction::class);
+    }
 
-    // public function transfers(){
-    //     return $this->hasMany(Transfer::class);
-    // }
+    public function sentTransfers()
+    {
+        return $this->hasMany(Transfer::class, 'sender_id');
+    }
+
+    public function receivedTransfers()
+    {
+        return $this->hasMany(Transfer::class, 'receiver_id');
+    }
 
 }
