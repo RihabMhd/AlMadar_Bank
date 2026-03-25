@@ -13,7 +13,6 @@ use App\Models\Transfer;
 
 interface TransferRepositoryInterface
 {
-    public function all(int $userId): Collection;
     public function findById(int $id): ?Transfer;
     public function initiateTransfer(array $data): Transfer;
 }

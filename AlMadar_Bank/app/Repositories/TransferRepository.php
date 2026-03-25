@@ -7,13 +7,6 @@ use Illuminate\Support\Collection;
 
 class TransferRepository implements TransferRepositoryInterface
 {
-    public function all(int $userId): Collection
-    {
-        return Transfer::where('sender_id', $userId)
-            ->orWhere('receiver_id', $userId)
-            ->get();
-    }
-
     public function initiateTransfer(array $data): Transfer
     {
         return Transfer::create([

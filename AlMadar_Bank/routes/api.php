@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\TransferController;
 
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
@@ -27,4 +28,9 @@ Route::middleware('auth:api')->group(function () {
     Route::patch('accounts/{id}/convert',                     [AccountController::class, 'convertAccount']);
     Route::patch('accounts/{id}/closure-consent',             [AccountController::class, 'acceptClosure']);
     Route::delete('accounts/{id}',                            [AccountController::class, 'requestClosure']);
+
+    Route::prefix('transfers')->group(function () {
+        Route::post('/', [TransferController::class, 'store']);
+        Route::get('/{id}', [TransferController::class, 'show']);
+    });
 });

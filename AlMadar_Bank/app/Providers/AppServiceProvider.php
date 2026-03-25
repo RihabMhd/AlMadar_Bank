@@ -9,6 +9,8 @@ use App\Repositories\ProfileRepositoryInterface;
 use App\Repositories\ProfileRepository;
 use App\Repositories\AccountRepository;
 use App\Repositories\AccountRepositoryInterface;
+use App\Repositories\TransferRepository;
+use App\Repositories\TransferRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             AccountRepositoryInterface::class,
             AccountRepository::class
+        );
+        $this->app->bind(
+            TransferRepository::class,
+            TransferRepositoryInterface::class
         );
     }
 
