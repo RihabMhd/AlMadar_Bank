@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\TransferController;
+use App\Http\Controllers\Api\TransactionController;
+use App\Http\Controllers\Api\Admin\AdminAccountController;
 
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
@@ -32,5 +34,15 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('transfers')->group(function () {
         Route::post('/', [TransferController::class, 'store']);
         Route::get('/{id}', [TransferController::class, 'show']);
+    });
+
+    Route::get('/accounts/{id}/transactions', [TransactionController::class, 'indexByAccount']);
+    Route::get('/transactions/{id}', [TransactionController::class, 'show']);
+
+    Route::prefix('admin/accounts')->group(function () {
+        Route::get('/', [AdminAccountController::class, 'index']);
+        Route::patch('/{id}/block', [AdminAccountController::class, 'block']);
+        Route::patch('/{id}/unblock', [AdminAccountController::class, 'unblock']);
+        Route::patch('/{id}/close', [AdminAccountController::class, 'close']);
     });
 });

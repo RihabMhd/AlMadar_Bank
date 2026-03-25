@@ -11,6 +11,8 @@ use App\Repositories\AccountRepository;
 use App\Repositories\AccountRepositoryInterface;
 use App\Repositories\TransferRepository;
 use App\Repositories\TransferRepositoryInterface;
+use App\Repositories\TransactionRepositoryInterface;
+use App\Repositories\TransactionRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,9 +35,15 @@ class AppServiceProvider extends ServiceProvider
             AccountRepositoryInterface::class,
             AccountRepository::class
         );
+
         $this->app->bind(
             TransferRepository::class,
             TransferRepositoryInterface::class
+        );
+
+        $this->app->bind(
+            TransactionRepositoryInterface::class,
+            TransactionRepository::class
         );
     }
 

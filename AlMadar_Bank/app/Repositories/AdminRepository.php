@@ -1,8 +1,27 @@
 <?php
-/**GET: /api/admin/accounts => (admin) Tous les comptes
+namespace App\Repositories;
 
-PATCH: /api/admin/accounts/{id}/block => (admin) Bloquer
+use App\Models\Account;
+use Illuminate\Support\Collection;
 
-PATCH: /api/admin/accounts/{id}/unblock => (admin) Débloquer
+class AdminRepository implements AdminRepositoryInterface
+{
+    public function getAll(): Collection
+    {
+        return Account::with('user')->get();
+    }
 
-PATCH: /api/admin/accounts/{id}/close => (admin) Clôturer */
+    public function findById(int $id): ?Account
+    {
+        return Account::find($id);
+    }
+
+    public function updateStatus(int $id, string $status): bool
+    {
+        $account = $this->findById($id);
+        if ($account) {
+            return $account->update(['status' => $status]);
+        }
+        return false;
+    }
+}
