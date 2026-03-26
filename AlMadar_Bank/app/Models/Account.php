@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Account extends Model
 {
     use HasFactory;
-    protected $fillable = ['rib','type','status','balance','overdraft_limit','interest_rate','monthly_fee','block_reason'];
+    protected $fillable = ['rib','type','balance','status','overdraft_limit','interest_rate','monthly_fee','block_reason'];
 
 
     public function users(){

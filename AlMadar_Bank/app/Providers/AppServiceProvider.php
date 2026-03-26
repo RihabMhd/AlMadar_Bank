@@ -37,14 +37,12 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
-            TransferRepository::class,
-            TransferRepositoryInterface::class
-        );
-
-        $this->app->bind(
             TransactionRepositoryInterface::class,
             TransactionRepository::class
         );
+        $this->app->bind(
+            TransferRepositoryInterface::class, 
+            TransferRepository::class);
     }
 
     /**

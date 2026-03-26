@@ -6,6 +6,7 @@ use App\Services\AccountService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Exception;
 
 class AccountController extends Controller
 {
@@ -19,76 +20,44 @@ class AccountController extends Controller
 
     public function index(): JsonResponse
     {
-        try {
-            $accounts = $this->accountService->getAllAccounts();
-            return response()->json($accounts);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
-        }
+        return response()->json($this->accountService->getAllAccounts());
     }
 
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'type'        => 'required|string|in:COURANT,MINEUR',
-            'balance'     => 'sometimes|numeric|min:0',
-            'guardian_id' => 'required_if:type,MINEUR|integer',
+            'type'        => 'required|string|in:COURANT,MINEUR,EPARGNE',
+            'balance'     => 'sometimes|numeric|min:0', // <--- Add this line
+            'guardian_id' => 'required_if:type,MINEUR|integer|exists:users,id',
         ]);
 
         try {
             $account = $this->accountService->storeAccount($data);
-            return response()->json([
-                'message' => 'Account created successfully',
-                'account' => $account,
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
-        }
-    }
-
-    public function show(int $id): JsonResponse
-    {
-        try {
-            $account = $this->accountService->getAccount($id);
-            return response()->json($account);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 404);
-        }
-    }
-
-    public function convertAccount(int $id): JsonResponse
-    {
-        try {
-            $account = $this->accountService->convertAccount($id);
-            return response()->json([
-                'message' => 'Account converted successfully',
-                'account' => $account,
-            ]);
-        } catch (\Exception $e) {
+            return response()->json(['message' => 'Account created', 'account' => $account], 201);
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
 
     public function addMember(Request $request, int $accountId): JsonResponse
     {
-        $data = $request->validate([
-            'user_id' => 'required|integer',
-        ]);
+        $data = $request->validate(['user_id' => 'required|integer|exists:users,id']);
 
         try {
             $this->accountService->addMember($accountId, $data['user_id']);
-            return response()->json(['message' => 'Member added successfully']);
-        } catch (\Exception $e) {
+            return response()->json(['message' => 'Co-owner added successfully']);
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
+
 
     public function removeMember(int $accountId, int $userId): JsonResponse
     {
         try {
             $this->accountService->removeMember($accountId, $userId);
             return response()->json(['message' => 'Member removed successfully']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
@@ -97,18 +66,19 @@ class AccountController extends Controller
     {
         try {
             $this->accountService->acceptClosure($accountId);
-            return response()->json(['message' => 'Closure accepted']);
-        } catch (\Exception $e) {
+            return response()->json(['message' => 'Closure agreement recorded.']);
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
+
 
     public function requestClosure(int $accountId): JsonResponse
     {
         try {
             $this->accountService->requestClosure($accountId);
-            return response()->json(['message' => 'Account closed successfully']);
-        } catch (\Exception $e) {
+            return response()->json(['message' => 'Closure request initiated successfully']);
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }

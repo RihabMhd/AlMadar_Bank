@@ -46,7 +46,7 @@ class AdminAccountController extends Controller
     {
         try {
             $this->adminService->updateAccountStatus($id, 'closed');
-            return response()->json(['message' => 'Account closed successfully.']);
+            return response()->json(['message' => 'Account closed by administrator.']);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }

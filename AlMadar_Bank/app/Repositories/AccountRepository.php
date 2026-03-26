@@ -21,6 +21,9 @@ class AccountRepository implements AccountRepositoryInterface
     public function create(array $data): Account
     {
         $data['rib'] = 'MA' . strtoupper(uniqid()) . rand(100, 999);
+
+        $data['balance'] = $data['balance'] ?? 0;
+
         $account = Account::create($data);
 
         $role = ($data['type'] === 'MINEUR') ? 'guardian' : 'owner';
@@ -56,21 +59,29 @@ class AccountRepository implements AccountRepositoryInterface
         $account->users()->updateExistingPivot($userId, ['accepted_closure' => true]);
     }
 
-   
+
+    public function incrementBalance(int $id, float $amount): void
+    {
+        Account::where('id', $id)->increment('balance', $amount);
+    }
+
+    public function decrementBalance(int $id, float $amount): void
+    {
+        Account::where('id', $id)->decrement('balance', $amount);
+    }
+
     public function closeAccount(Account $account): void
     {
-       
+
         if ($account->balance != 0) {
-            throw new \Exception("Account balance must be exactly zero to close.");
+            throw new \Exception("Account balance must be zero to close.");
         }
 
         $holders = $account->users()->get();
-        $allAgreed = $holders->every(fn($user) => $user->pivot->accepted_closure == true);
+        $allAgreed = $holders->every(fn($user) => $user->pivot->accepted_closure);
 
-        if (!$allAgreed) {
-            throw new \Exception("All holders must accept the closure.");
+        if ($allAgreed) {
+            $account->update(['status' => 'CLOSED']);
         }
-
-        $account->update(['status' => 'CLOSED']);
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\TransactionService;
 use Illuminate\Http\JsonResponse;
 use Exception;
+use Symfony\Component\HttpFoundation\Request;
 
 class TransactionController extends Controller
 {
@@ -16,9 +17,11 @@ class TransactionController extends Controller
         $this->transactionService = $transactionService;
     }
 
-    public function indexByAccount(int $accountId): JsonResponse
+    public function indexByAccount(Request $request, int $accountId): JsonResponse
     {
-        $transactions = $this->transactionService->getAccountHistory($accountId);
+        $filters = $request->only(['type', 'date']);
+
+        $transactions = $this->transactionService->getAccountHistory($accountId, $filters);
         return response()->json(['data' => $transactions]);
     }
 

@@ -15,4 +15,6 @@ interface AccountRepositoryInterface
     public function removeCoHolder(Account $account, int $userId): void;
     public function acceptClosure(Account $account, int $userId): void;
     public function closeAccount(Account $account): void;
+    public function incrementBalance(int $id, float $amount): void; 
+    public function decrementBalance(int $id, float $amount): void;
 }

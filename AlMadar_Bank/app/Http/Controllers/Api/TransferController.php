@@ -21,19 +21,18 @@ class TransferController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'sender_id'    => 'required|exists:users,id',
-            'receiver_id'  => 'required|exists:users,id|different:sender_id',
-            'initiated_by' => 'required|exists:users,id',
+            'sender_id'    => 'required|exists:accounts,id',
+            'receiver_id'  => 'required|exists:accounts,id|different:sender_id',
             'amount'       => 'required|numeric|min:0.01',
             'reason'       => 'nullable|string|max:255',
         ]);
 
+
+        $validated['initiated_by'] = auth()->id();
+
         try {
             $transfer = $this->transferService->createTransfer($validated);
-            return response()->json([
-                'message' => 'Transfer initiated successfully',
-                'data'    => $transfer
-            ], 201);
+            return response()->json(['message' => 'Transfer successful', 'data' => $transfer], 201);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
