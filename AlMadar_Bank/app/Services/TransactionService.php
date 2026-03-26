@@ -8,12 +8,9 @@ use Illuminate\Support\Collection;
 
 class TransactionService
 {
-    protected $transactionRepository;
-
-    public function __construct(TransactionRepositoryInterface $transactionRepository)
-    {
-        $this->transactionRepository = $transactionRepository;
-    }
+    public function __construct(
+        protected TransactionRepositoryInterface $transactionRepository
+    ) {}
 
     public function getTransaction(int $id)
     {
@@ -26,8 +23,8 @@ class TransactionService
         return $transaction;
     }
 
-    public function getAccountHistory(int $accountId): Collection
+    public function getAccountHistory(int $accountId, array $filters = []): Collection
     {
-        return $this->transactionRepository->getByAccountId($accountId);
+        return $this->transactionRepository->getByAccountId($accountId, $filters);
     }
 }

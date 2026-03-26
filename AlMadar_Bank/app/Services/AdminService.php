@@ -8,12 +8,9 @@ use Illuminate\Support\Collection;
 
 class AdminService
 {
-    protected $adminRepository;
-
-    public function __construct(AdminRepositoryInterface $adminRepository)
-    {
-        $this->adminRepository = $adminRepository;
-    }
+    public function __construct(
+        protected AdminRepositoryInterface $adminRepository
+    ) {}
 
     public function listAllAccounts(): Collection
     {
@@ -25,7 +22,7 @@ class AdminService
         $account = $this->adminRepository->findById($id);
 
         if (!$account) {
-            throw new Exception("Account with ID {$id} not found.");
+            throw new Exception("Account not found.");
         }
 
         if ($account->status === 'closed') {

@@ -56,14 +56,15 @@ class AccountRepository implements AccountRepositoryInterface
         $account->users()->updateExistingPivot($userId, ['accepted_closure' => true]);
     }
 
+   
     public function closeAccount(Account $account): void
     {
-        if ($account->balance > 0) {
-            throw new \Exception("Balance must be zero before closing.");
+       
+        if ($account->balance != 0) {
+            throw new \Exception("Account balance must be exactly zero to close.");
         }
 
         $holders = $account->users()->get();
-
         $allAgreed = $holders->every(fn($user) => $user->pivot->accepted_closure == true);
 
         if (!$allAgreed) {

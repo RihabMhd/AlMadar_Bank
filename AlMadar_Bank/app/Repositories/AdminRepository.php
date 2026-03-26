@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Models\Account;
@@ -8,7 +9,7 @@ class AdminRepository implements AdminRepositoryInterface
 {
     public function getAll(): Collection
     {
-        return Account::with('user')->get();
+        return Account::with(['users', 'transactions'])->get();
     }
 
     public function findById(int $id): ?Account

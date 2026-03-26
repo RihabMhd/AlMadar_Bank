@@ -14,12 +14,12 @@ class ProfileService
 
     public function getProfile(): User
     {
-        return auth('api')->user();
+        return auth()->user();
     }
 
     public function updateProfile(array $data): User
     {
-        $user = auth('api')->user();
+        $user = auth()->user();
         return $this->profileRepo->update($user, $data);
     }
 
