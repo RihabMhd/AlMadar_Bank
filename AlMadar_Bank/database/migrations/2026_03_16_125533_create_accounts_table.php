@@ -17,12 +17,15 @@ return new class extends Migration
             $table->enum('type', ['COURANT', 'EPARGNE', 'MINEUR']);
             $table->enum('status', ['ACTIVE', 'BLOCKED', 'CLOSED'])->default('ACTIVE');
             $table->decimal('balance', 15, 2)->default(0.00);
-
             $table->decimal('overdraft_limit', 10, 2)->default(0.00);
-            $table->decimal('interest_rate', 5, 2)->nullable(); 
+            $table->decimal('interest_rate', 5, 2)->nullable();
             $table->decimal('monthly_fee', 10, 2)->default(0.00);
-
-            $table->string('block_reason')->nullable(); 
+            $table->unsignedSmallInteger('withdrawal_count')->default(0);
+            $table->date('withdrawal_reset_date')->nullable();
+            $table->decimal('daily_transfer_total', 15, 2)->default(0.00);
+            $table->decimal('daily_transfer_limit', 15, 2)->default(10000.00);
+            $table->date('last_transfer_date')->nullable();
+            $table->string('block_reason')->nullable();
             $table->timestamps();
         });
     }

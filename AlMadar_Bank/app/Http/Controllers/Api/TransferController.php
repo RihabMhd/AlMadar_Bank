@@ -24,11 +24,9 @@ class TransferController extends Controller
             'reason'      => 'nullable|string|max:255',
         ]);
 
-        $validated['initiated_by'] = auth()->id();
-
         try {
             $transfer = $this->transferService->createTransfer($validated);
-            return response()->json(['message' => 'Transfer successful', 'data' => $transfer], 201);
+            return response()->json(['message' => 'Transfer successful.', 'data' => $transfer], 201);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }

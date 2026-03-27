@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use App\Models\Account;
-use App\Models\User;
 use Illuminate\Support\Collection;
 
 class AccountRepository implements AccountRepositoryInterface
@@ -30,11 +29,12 @@ class AccountRepository implements AccountRepositoryInterface
 
         $account = Account::create($data);
 
-        $role = ($data['type'] === 'MINEUR') ? 'guardian' : 'owner';
-        $account->users()->attach(auth()->id(), [
-            'relation_type'    => $role,
-            'accepted_closure' => false,
-        ]);
+        if ($data['type'] !== 'MINEUR') {
+            $account->users()->attach(auth()->id(), [
+                'relation_type'    => 'owner',
+                'accepted_closure' => false,
+            ]);
+        }
 
         return $account;
     }
@@ -79,6 +79,42 @@ class AccountRepository implements AccountRepositoryInterface
     public function decrementBalance(int $id, float $amount): void
     {
         Account::where('id', $id)->decrement('balance', $amount);
+    }
+
+    public function incrementWithdrawalCount(int $id): void
+    {
+        Account::where('id', $id)->increment('withdrawal_count');
+        Account::where('id', $id)->update(['withdrawal_reset_date' => now()->startOfMonth()]);
+    }
+
+    public function resetWithdrawalCount(int $id): void
+    {
+        Account::where('id', $id)->update([
+            'withdrawal_count'      => 0,
+            'withdrawal_reset_date' => now()->startOfMonth(),
+        ]);
+    }
+
+    public function incrementDailyTransferTotal(int $id, float $amount): void
+    {
+        Account::where('id', $id)->increment('daily_transfer_total', $amount);
+        Account::where('id', $id)->update(['last_transfer_date' => now()->toDateString()]);
+    }
+
+    public function resetDailyTransferTotal(int $id): void
+    {
+        Account::where('id', $id)->update([
+            'daily_transfer_total' => 0,
+            'last_transfer_date'   => now()->toDateString(),
+        ]);
+    }
+
+    public function blockAccount(int $id, string $reason): void
+    {
+        Account::where('id', $id)->update([
+            'status'       => 'BLOCKED',
+            'block_reason' => $reason,
+        ]);
     }
 
     public function closeAccount(Account $account): void

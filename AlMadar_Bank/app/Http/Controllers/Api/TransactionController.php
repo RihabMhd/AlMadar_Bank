@@ -17,6 +17,11 @@ class TransactionController extends Controller
 
     public function indexByAccount(Request $request, int $accountId): JsonResponse
     {
+        $request->validate([
+            'type' => 'sometimes|string|in:DEBIT,CREDIT,FEE,FEE_FAILED,INTEREST,TRANSFER_IN,TRANSFER_OUT',
+            'date' => 'sometimes|date_format:Y-m-d',
+        ]);
+
         try {
             $filters      = $request->only(['type', 'date']);
             $transactions = $this->transactionService->getAccountHistory($accountId, $filters);

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Transaction;
 use App\Repositories\AccountRepositoryInterface;
 use App\Repositories\TransactionRepositoryInterface;
 use Exception;
@@ -14,7 +15,7 @@ class TransactionService
         protected AccountRepositoryInterface     $accountRepository
     ) {}
 
-    public function getTransaction(int $id)
+    public function getTransaction(int $id): Transaction
     {
         $transaction = $this->transactionRepository->findById($id);
 

@@ -11,6 +11,7 @@ class TransactionRepository implements TransactionRepositoryInterface
     {
         return Transaction::create($data);
     }
+
     public function findById(int $id): ?Transaction
     {
         return Transaction::find($id);
@@ -20,11 +21,9 @@ class TransactionRepository implements TransactionRepositoryInterface
     {
         $query = Transaction::where('account_id', $accountId);
 
-
         if (isset($filters['type'])) {
-            $query->where('type', $filters['type']);
+            $query->where('type', strtoupper($filters['type']));
         }
-
 
         if (isset($filters['date'])) {
             $query->whereDate('created_at', $filters['date']);

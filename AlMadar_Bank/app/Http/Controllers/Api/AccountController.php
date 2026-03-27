@@ -17,20 +17,24 @@ class AccountController extends Controller
 
     public function index(): JsonResponse
     {
-        return response()->json($this->accountService->getAllAccounts());
+        return response()->json(['data' => $this->accountService->getAllAccounts()]);
     }
 
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'type'        => 'required|string|in:COURANT,MINEUR,EPARGNE',
-            'balance'     => 'sometimes|numeric|min:0',
-            'guardian_id' => 'required_if:type,MINEUR|integer|exists:users,id',
+            'type'               => 'required|string|in:COURANT,MINEUR,EPARGNE',
+            'balance'            => 'sometimes|numeric|min:0',
+            'guardian_id'        => 'required_if:type,MINEUR|integer|exists:users,id',
+            'overdraft_limit'    => 'sometimes|numeric|min:0',
+            'interest_rate'      => 'sometimes|numeric|min:0',
+            'monthly_fee'        => 'sometimes|numeric|min:0',
+            'daily_transfer_limit' => 'sometimes|numeric|min:0',
         ]);
 
         try {
             $account = $this->accountService->storeAccount($data);
-            return response()->json(['message' => 'Account created', 'account' => $account], 201);
+            return response()->json(['message' => 'Account created.', 'data' => $account], 201);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
@@ -52,7 +56,7 @@ class AccountController extends Controller
 
         try {
             $this->accountService->addCoHolder($accountId, $data['user_id']);
-            return response()->json(['message' => 'Co-owner added successfully']);
+            return response()->json(['message' => 'Co-owner added successfully.']);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
@@ -62,7 +66,7 @@ class AccountController extends Controller
     {
         try {
             $this->accountService->removeCoHolder($accountId, $userId);
-            return response()->json(['message' => 'Co-owner removed successfully']);
+            return response()->json(['message' => 'Co-owner removed successfully.']);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
@@ -74,7 +78,7 @@ class AccountController extends Controller
 
         try {
             $this->accountService->assignGuardian($accountId, $data['user_id']);
-            return response()->json(['message' => 'Guardian assigned successfully']);
+            return response()->json(['message' => 'Guardian assigned successfully.']);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
@@ -84,7 +88,7 @@ class AccountController extends Controller
     {
         try {
             $account = $this->accountService->convertToCurrentAccount($accountId);
-            return response()->json(['message' => 'Account converted to COURANT', 'data' => $account]);
+            return response()->json(['message' => 'Account converted to COURANT.', 'data' => $account]);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }

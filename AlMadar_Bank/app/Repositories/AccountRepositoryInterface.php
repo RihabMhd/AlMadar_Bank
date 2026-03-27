@@ -19,4 +19,9 @@ interface AccountRepositoryInterface
     public function closeAccount(Account $account): void;
     public function incrementBalance(int $id, float $amount): void;
     public function decrementBalance(int $id, float $amount): void;
+    public function incrementWithdrawalCount(int $id): void;
+    public function resetWithdrawalCount(int $id): void;
+    public function incrementDailyTransferTotal(int $id, float $amount): void;
+    public function resetDailyTransferTotal(int $id): void;
+    public function blockAccount(int $id, string $reason): void;
 }
