@@ -10,12 +10,9 @@ use Exception;
 
 class AccountController extends Controller
 {
-    protected $accountService;
-
-    public function __construct(AccountService $accountService)
+    public function __construct(protected AccountService $accountService)
     {
         $this->middleware('auth:api');
-        $this->accountService = $accountService;
     }
 
     public function index(): JsonResponse
@@ -27,7 +24,7 @@ class AccountController extends Controller
     {
         $data = $request->validate([
             'type'        => 'required|string|in:COURANT,MINEUR,EPARGNE',
-            'balance'     => 'sometimes|numeric|min:0', // <--- Add this line
+            'balance'     => 'sometimes|numeric|min:0',
             'guardian_id' => 'required_if:type,MINEUR|integer|exists:users,id',
         ]);
 
@@ -39,45 +36,65 @@ class AccountController extends Controller
         }
     }
 
-    public function addMember(Request $request, int $accountId): JsonResponse
+    public function show(int $id): JsonResponse
+    {
+        try {
+            $account = $this->accountService->getAccount($id);
+            return response()->json(['data' => $account]);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
+        }
+    }
+
+    public function addCoHolder(Request $request, int $accountId): JsonResponse
     {
         $data = $request->validate(['user_id' => 'required|integer|exists:users,id']);
 
         try {
-            $this->accountService->addMember($accountId, $data['user_id']);
+            $this->accountService->addCoHolder($accountId, $data['user_id']);
             return response()->json(['message' => 'Co-owner added successfully']);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
 
-
-    public function removeMember(int $accountId, int $userId): JsonResponse
+    public function removeCoHolder(int $accountId, int $userId): JsonResponse
     {
         try {
-            $this->accountService->removeMember($accountId, $userId);
-            return response()->json(['message' => 'Member removed successfully']);
+            $this->accountService->removeCoHolder($accountId, $userId);
+            return response()->json(['message' => 'Co-owner removed successfully']);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
 
-    public function acceptClosure(int $accountId): JsonResponse
+    public function assignGuardian(Request $request, int $accountId): JsonResponse
     {
+        $data = $request->validate(['user_id' => 'required|integer|exists:users,id']);
+
         try {
-            $this->accountService->acceptClosure($accountId);
-            return response()->json(['message' => 'Closure agreement recorded.']);
+            $this->accountService->assignGuardian($accountId, $data['user_id']);
+            return response()->json(['message' => 'Guardian assigned successfully']);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
 
+    public function convert(int $accountId): JsonResponse
+    {
+        try {
+            $account = $this->accountService->convertToCurrentAccount($accountId);
+            return response()->json(['message' => 'Account converted to COURANT', 'data' => $account]);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
+    }
 
     public function requestClosure(int $accountId): JsonResponse
     {
         try {
             $this->accountService->requestClosure($accountId);
-            return response()->json(['message' => 'Closure request initiated successfully']);
+            return response()->json(['message' => 'Closure request recorded. Account will close once all holders agree.']);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }

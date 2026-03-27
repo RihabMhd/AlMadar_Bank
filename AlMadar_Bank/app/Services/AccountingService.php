@@ -3,13 +3,15 @@
 namespace App\Services;
 
 use App\Models\Account;
+use App\Repositories\AccountRepositoryInterface;
 use App\Repositories\TransactionRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 
 class AccountingService
 {
     public function __construct(
-        protected TransactionRepositoryInterface $transactionRepository
+        protected TransactionRepositoryInterface $transactionRepository,
+        protected AccountRepositoryInterface     $accountRepository
     ) {}
 
     public function processMonthlyRoutine(): void
@@ -23,7 +25,7 @@ class AccountingService
                 }
 
                 if ($account->type === 'EPARGNE' || $account->type === 'MINEUR') {
-                    $interest = $account->balance * 0.01; 
+                    $interest = $account->balance * 0.01;
                     if ($interest > 0) {
                         $this->applyTransaction($account, 'INTEREST', $interest, 'Monthly interest credit');
                     }
@@ -42,9 +44,9 @@ class AccountingService
         ]);
 
         if ($type === 'FEE') {
-            $account->decrement('balance', $amount);
+            $this->accountRepository->decrementBalance($account->id, $amount);
         } else {
-            $account->increment('balance', $amount);
+            $this->accountRepository->incrementBalance($account->id, $amount);
         }
     }
 }

@@ -10,23 +10,19 @@ use Exception;
 
 class TransferController extends Controller
 {
-    protected $transferService;
-
-    public function __construct(TransferService $transferService)
+    public function __construct(protected TransferService $transferService)
     {
-        $this->transferService = $transferService;
+        $this->middleware('auth:api');
     }
-
 
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'sender_id'    => 'required|exists:accounts,id',
-            'receiver_id'  => 'required|exists:accounts,id|different:sender_id',
-            'amount'       => 'required|numeric|min:0.01',
-            'reason'       => 'nullable|string|max:255',
+            'sender_id'   => 'required|exists:accounts,id',
+            'receiver_id' => 'required|exists:accounts,id|different:sender_id',
+            'amount'      => 'required|numeric|min:0.01',
+            'reason'      => 'nullable|string|max:255',
         ]);
-
 
         $validated['initiated_by'] = auth()->id();
 
@@ -42,7 +38,12 @@ class TransferController extends Controller
     {
         try {
             $transfer = $this->transferService->getTransfer($id);
-            return response()->json(['data' => $transfer], 200);
+
+            if ($transfer->initiated_by !== auth()->id()) {
+                return response()->json(['error' => 'Unauthorized.'], 403);
+            }
+
+            return response()->json(['data' => $transfer]);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 404);
         }

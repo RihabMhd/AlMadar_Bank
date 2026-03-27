@@ -15,6 +15,8 @@ use App\Repositories\TransactionRepositoryInterface;
 use App\Repositories\TransactionRepository;
 use App\Repositories\AdminRepository;
 use App\Repositories\AdminRepositoryInterface;
+use App\Repositories\UserRepository;
+use App\Repositories\UserRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -51,6 +53,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             AdminRepositoryInterface::class, 
             AdminRepository::class
+        );
+
+        $this->app->bind(
+            UserRepositoryInterface::class, 
+            UserRepository::class
         );
     }
 

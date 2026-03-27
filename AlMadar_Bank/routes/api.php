@@ -9,8 +9,6 @@ use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\AdminAccountController;
 
 
-
-
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login',    [AuthController::class, 'login']);
@@ -18,6 +16,7 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth:api')->group(function () {
 
+ 
     Route::prefix('auth')->group(function () {
         Route::post('refresh', [AuthController::class, 'refresh']);
         Route::post('logout',  [AuthController::class, 'logout']);
@@ -25,26 +24,27 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('users/me')->group(function () {
-        Route::get('/',         [ProfileController::class, 'me']);
-        Route::put('/',         [ProfileController::class, 'updateProfile']);
+        Route::get('/',          [ProfileController::class, 'me']);
+        Route::put('/',          [ProfileController::class, 'updateProfile']);
         Route::patch('password', [ProfileController::class, 'updatePassword']);
-        Route::delete('/',      [ProfileController::class, 'destroy']);
+        Route::delete('/',       [ProfileController::class, 'destroy']);
     });
 
     Route::prefix('accounts')->group(function () {
-        Route::get('/',                [AccountController::class, 'index']);
-        Route::post('/',               [AccountController::class, 'store']);
-        Route::get('{id}',             [AccountController::class, 'show']);
-        
-        Route::post('{id}/members',    [AccountController::class, 'addMember']);
-        Route::delete('{id}/members/{userId}', [AccountController::class, 'removeMember']);
-        
-        Route::delete('{id}',          [AccountController::class, 'requestClosure']);
-        Route::patch('{id}/approve-closure', [AccountController::class, 'acceptClosure']);
-        
-        Route::patch('{id}/convert',   [AccountController::class, 'convertAccount']);
-        
-        Route::get('{id}/transactions', [TransactionController::class, 'indexByAccount']);
+        Route::get('/',    [AccountController::class, 'index']);
+        Route::post('/',   [AccountController::class, 'store']);
+        Route::get('{id}', [AccountController::class, 'show']);
+
+        Route::post('{id}/co-owners',              [AccountController::class, 'addCoHolder']);
+        Route::delete('{id}/co-owners/{userId}',   [AccountController::class, 'removeCoHolder']);
+
+        Route::post('{id}/guardian',               [AccountController::class, 'assignGuardian']);
+
+        Route::patch('{id}/convert',               [AccountController::class, 'convert']);
+
+        Route::delete('{id}',                      [AccountController::class, 'requestClosure']);
+
+        Route::get('{id}/transactions',            [TransactionController::class, 'indexByAccount']);
     });
 
     Route::prefix('transfers')->group(function () {
@@ -54,9 +54,8 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('transactions/{id}', [TransactionController::class, 'show']);
 
- 
-    Route::prefix('admin/accounts')->group(function () {
-        Route::get('/',             [AdminAccountController::class, 'index']);
+    Route::middleware('admin')->prefix('admin/accounts')->group(function () {
+        Route::get('/',              [AdminAccountController::class, 'index']);
         Route::patch('{id}/block',   [AdminAccountController::class, 'block']);
         Route::patch('{id}/unblock', [AdminAccountController::class, 'unblock']);
         Route::patch('{id}/close',   [AdminAccountController::class, 'close']);

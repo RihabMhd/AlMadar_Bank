@@ -18,10 +18,14 @@ class AccountRepository implements AccountRepositoryInterface
         return Account::find($id);
     }
 
+    public function findByRib(string $rib): ?Account
+    {
+        return Account::where('rib', $rib)->first();
+    }
+
     public function create(array $data): Account
     {
-        $data['rib'] = 'MA' . strtoupper(uniqid()) . rand(100, 999);
-
+        $data['rib']     = 'MA' . strtoupper(uniqid()) . rand(100, 999);
         $data['balance'] = $data['balance'] ?? 0;
 
         $account = Account::create($data);
@@ -49,6 +53,14 @@ class AccountRepository implements AccountRepositoryInterface
         ]);
     }
 
+    public function addGuardian(Account $account, int $userId): void
+    {
+        $account->users()->attach($userId, [
+            'relation_type'    => 'guardian',
+            'accepted_closure' => false,
+        ]);
+    }
+
     public function removeCoHolder(Account $account, int $userId): void
     {
         $account->users()->detach($userId);
@@ -58,7 +70,6 @@ class AccountRepository implements AccountRepositoryInterface
     {
         $account->users()->updateExistingPivot($userId, ['accepted_closure' => true]);
     }
-
 
     public function incrementBalance(int $id, float $amount): void
     {
@@ -72,12 +83,11 @@ class AccountRepository implements AccountRepositoryInterface
 
     public function closeAccount(Account $account): void
     {
-
         if ($account->balance != 0) {
             throw new \Exception("Account balance must be zero to close.");
         }
 
-        $holders = $account->users()->get();
+        $holders   = $account->users()->get();
         $allAgreed = $holders->every(fn($user) => $user->pivot->accepted_closure);
 
         if ($allAgreed) {

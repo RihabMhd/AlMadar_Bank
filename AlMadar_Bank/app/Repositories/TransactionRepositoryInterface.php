@@ -9,5 +9,5 @@ interface TransactionRepositoryInterface
 {
     public function create(array $data): Transaction;
     public function findById(int $id): ?Transaction;
-    public function getByAccountId(int $accountId): Collection;
+    public function getByAccountId(int $accountId, array $filters = []): Collection;
 }

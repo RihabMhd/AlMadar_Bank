@@ -9,11 +9,9 @@ use Exception;
 
 class AdminAccountController extends Controller
 {
-    protected $adminService;
-
-    public function __construct(AdminService $adminService)
+    public function __construct(protected AdminService $adminService)
     {
-        $this->adminService = $adminService;
+        $this->middleware('auth:api');
     }
 
     public function index(): JsonResponse
@@ -25,7 +23,7 @@ class AdminAccountController extends Controller
     public function block(int $id): JsonResponse
     {
         try {
-            $this->adminService->updateAccountStatus($id, 'blocked');
+            $this->adminService->updateAccountStatus($id, 'BLOCKED');
             return response()->json(['message' => 'Account blocked successfully.']);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
@@ -35,7 +33,7 @@ class AdminAccountController extends Controller
     public function unblock(int $id): JsonResponse
     {
         try {
-            $this->adminService->updateAccountStatus($id, 'active');
+            $this->adminService->updateAccountStatus($id, 'ACTIVE');
             return response()->json(['message' => 'Account unblocked successfully.']);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
@@ -45,7 +43,7 @@ class AdminAccountController extends Controller
     public function close(int $id): JsonResponse
     {
         try {
-            $this->adminService->updateAccountStatus($id, 'closed');
+            $this->adminService->updateAccountStatus($id, 'CLOSED');
             return response()->json(['message' => 'Account closed by administrator.']);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);

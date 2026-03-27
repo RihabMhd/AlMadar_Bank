@@ -25,10 +25,15 @@ class AdminService
             throw new Exception("Account not found.");
         }
 
-        if ($account->status === 'closed') {
+        if ($account->status === 'CLOSED') {
             throw new Exception("This account is already closed and cannot be modified.");
         }
 
-        return $this->adminRepository->updateStatus($id, $status);
+        $allowed = ['ACTIVE', 'BLOCKED', 'CLOSED'];
+        if (!in_array(strtoupper($status), $allowed)) {
+            throw new Exception("Invalid status value.");
+        }
+
+        return $this->adminRepository->updateStatus($id, strtoupper($status));
     }
 }

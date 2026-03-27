@@ -4,25 +4,26 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\TransactionService;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Exception;
-use Symfony\Component\HttpFoundation\Request;
 
 class TransactionController extends Controller
 {
-    protected $transactionService;
-
-    public function __construct(TransactionService $transactionService)
+    public function __construct(protected TransactionService $transactionService)
     {
-        $this->transactionService = $transactionService;
+        $this->middleware('auth:api');
     }
 
     public function indexByAccount(Request $request, int $accountId): JsonResponse
     {
-        $filters = $request->only(['type', 'date']);
-
-        $transactions = $this->transactionService->getAccountHistory($accountId, $filters);
-        return response()->json(['data' => $transactions]);
+        try {
+            $filters      = $request->only(['type', 'date']);
+            $transactions = $this->transactionService->getAccountHistory($accountId, $filters);
+            return response()->json(['data' => $transactions]);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 403);
+        }
     }
 
     public function show(int $id): JsonResponse
