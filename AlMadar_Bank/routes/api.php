@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\TransferController;
 use App\Http\Controllers\Api\TransactionController;
-use App\Http\Controllers\Api\Admin\AdminAccountController;
+use App\Http\Controllers\Api\AdminAccountController;
 
 
 

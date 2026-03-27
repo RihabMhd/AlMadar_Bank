@@ -13,6 +13,8 @@ use App\Repositories\TransferRepository;
 use App\Repositories\TransferRepositoryInterface;
 use App\Repositories\TransactionRepositoryInterface;
 use App\Repositories\TransactionRepository;
+use App\Repositories\AdminRepository;
+use App\Repositories\AdminRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -40,9 +42,16 @@ class AppServiceProvider extends ServiceProvider
             TransactionRepositoryInterface::class,
             TransactionRepository::class
         );
+
         $this->app->bind(
             TransferRepositoryInterface::class, 
-            TransferRepository::class);
+            TransferRepository::class
+        );
+
+        $this->app->bind(
+            AdminRepositoryInterface::class, 
+            AdminRepository::class
+        );
     }
 
     /**

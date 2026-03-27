@@ -30,14 +30,43 @@ class TransferService
     }
 
     public function createTransfer(array $data): Transfer
-    {
+    {   
         return DB::transaction(function () use ($data) {
-            if ($data['amount'] <= 0) throw new Exception("Amount must be positive.");
+
+            if ($data['amount'] <= 0) {
+                throw new Exception("Amount must be positive.");
+            }
 
             $sender = $this->accountRepo->findById($data['sender_id']);
-            if ($sender->balance < $data['amount']) throw new Exception("Insufficient balance.");
+            $receiver = $this->accountRepo->findById($data['receiver_id']);
+
+            if (!$sender || !$receiver) {
+                throw new Exception("One or both accounts were not found.");
+            }
+
+            if ($sender->balance < $data['amount']) {
+                throw new Exception("Insufficient balance in the sender account.");
+            }
+
+            $this->accountRepo->decrementBalance($sender->id, (float) $data['amount']);
+            $this->accountRepo->incrementBalance($receiver->id, (float) $data['amount']);
 
             $transfer = $this->transferRepository->initiateTransfer($data);
+
+
+            $this->transactionRepository->create([
+                'account_id' => $sender->id,
+                'type'       => 'TRANSFER_OUT', 
+                'amount'     => $data['amount'],
+                'label'      => 'Transfer to ' . $receiver->rib,
+            ]);
+
+            $this->transactionRepository->create([
+                'account_id' => $receiver->id,
+                'type'       => 'TRANSFER_IN', 
+                'amount'     => $data['amount'],
+                'label'      => 'Transfer from ' . $sender->rib,
+            ]);
 
             return $transfer;
         });
