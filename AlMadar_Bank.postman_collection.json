@@ -1,0 +1,751 @@
+{
+  "info": {
+    "_postman_id": "b213eb03-b613-40ef-a7a8-2cbf0b951800",
+    "name": "AlMadar_Bank",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53036671",
+    "_collection_link": "https://go.postman.co/collection/53036671-b213eb03-b613-40ef-a7a8-2cbf0b951800?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Authentification",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nom\": \"Doe\",\r\n    \"prenom\": \"John\",\r\n    \"email\": \"john.doe@example.com\",\r\n    \"password\": \"password123\",\r\n    \"password_confirmation\": \"password123\",\r\n    \"date_naissance\": \"1990-05-15\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/auth/register",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "## Register a New User\n\nThis endpoint registers a new user account in the system. It creates a user profile with the provided personal details and credentials.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nPOST {{url}}/auth/register\n```\n\n---\n\n### Request Headers\n\n| Key | Value |\n|-----|-------|\n| Accept | application/json |\n\n---\n\n### Request Body\n\nThe request body must be sent as **raw JSON**.\n\n| Field | Type | Description |\n|-------|------|-------------|\n| `nom` | string | Last name of the user |\n| `prenom` | string | First name of the user |\n| `email` | string | User's email address (must be unique) |\n| `password` | string | Account password |\n| `password_confirmation` | string | Password confirmation — must match `password` |\n| `date_naissance` | string | Date of birth in `YYYY-MM-DD` format |\n\n**Example Body:**\n\n```json\n{\n  \"nom\": \"jane\",\n  \"prenom\": \"smith\",\n  \"email\": \"jane.smith@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"date_naissance\": \"1997-05-15\"\n}\n```\n\n---\n\n### Authentication\n\n> **No authentication required.** This endpoint is publicly accessible since it is used to create a new account.\n>\n> Note: Other endpoints in this collection use Bearer token authentication via `{{token}}`. Once registered, obtain a token through the login endpoint and set it as the `token` variable in your environment."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.environment.set(\"token\", jsonData.access_token);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"john.doe@example.com\",\r\n    \"password\": \"password123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/auth/login",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "## Login\n\nAuthenticates an existing user and returns a JWT access token.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nPOST {{url}}/auth/login\n```\n\n---\n\n### Request Headers\n\n| Header | Value |\n|--------|-------|\n| Accept | application/json |\n\n---\n\n### Request Body\n\nSend a JSON object with the following fields:\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| email | string | Yes | The registered email address of the user |\n| password | string | Yes | The user's account password |\n\n**Example:**\n\n```json\n{\n  \"email\": \"jane.smith@example.com\",\n  \"password\": \"password123\"\n}\n```\n\n---\n\n### Response\n\nOn success (`200 OK`), the response contains a JWT access token:\n\n```json\n{\n  \"access_token\": \"<jwt_token>\"\n}\n```\n\nThe `access_token` is automatically saved to the `token` environment variable for use in subsequent authenticated requests.\n\n---\n\n### Authentication\n\nThis endpoint does **not** require authentication. It is used to obtain the bearer token needed for all other protected endpoints.\n\n---"
+          },
+          "response": []
+        },
+        {
+          "name": "User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/users/me",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            },
+            "description": "## Get Current User\n\nRetrieves the profile information of the currently authenticated user.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nGET {{url}}/users/me\n```\n\n---\n\n### Authentication\n\nThis endpoint requires a valid Bearer token. The token is inherited from the collection-level auth configuration.\n\n```\nAuthorization: Bearer {{token}}\n```\n\n---\n\n### Request Headers\n\n| Header | Value |\n|--------|-------|\n| Accept | application/json |\n\n---\n\n### Response\n\n#### Success — `200 OK`\n\nReturns the authenticated user's profile object.\n\n```json\n{\n  \"id\": 1,\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+213xxxxxxxxx\",\n  \"created_at\": \"2024-01-01T00:00:00.000Z\",\n  \"updated_at\": \"2024-06-01T00:00:00.000Z\"\n}\n```\n\n#### Error — `401 Unauthorized`\n\nReturned when the Bearer token is missing or invalid.\n\n```json\n{\n  \"message\": \"Unauthenticated.\"\n}\n```\n\n---\n\n### Notes\n\n- The `{{token}}` variable must be set in the active environment (`RestApi`) before sending this request.\n- This endpoint always returns the profile of the user associated with the provided token, regardless of any user ID in the URL."
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"john@example.com\",\r\n  \"password\": \"secret123\"\r\n}"
+            },
+            "url": {
+              "raw": "{{url}}/auth/logout",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "## Logout\n\nLogs out the currently authenticated user by invalidating their session or access token.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nPOST {{url}}/auth/logout\n```\n\n---\n\n### Request Headers\n\n| Header | Value |\n|--------|-------|\n| Accept | application/json |\n\n---\n\n### Authentication\n\nThis endpoint requires a valid Bearer token to be included in the request. The token is inherited from the collection-level auth configuration.\n\n```\nAuthorization: Bearer {{token}}\n```\n\n---\n\n### Request Body\n\nThe request body should be sent as raw JSON.\n\n```json\n{\n  \"email\": \"john@example.com\",\n  \"password\": \"secret123\"\n}\n```\n\n| Field | Type | Description |\n|-------|------|-------------|\n| email | string | The email address of the user logging out |\n| password | string | The password of the user |\n\n---\n\n### Responses\n\n| Status Code | Description |\n|-------------|-------------|\n| 200 OK | User successfully logged out |\n| 401 Unauthorized | Invalid or expired token |\n| 422 Unprocessable Entity | Validation error in request body |\n\n---\n\n### Notes\n\n- After a successful logout, the token associated with the user session is invalidated and can no longer be used for authenticated requests.\n- Ensure the `{{token}}` environment variable is set before calling this endpoint."
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nom\": \"John Updated\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/users/me",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            },
+            "description": "## Update Current User\n\nUpdates the profile of the currently authenticated user.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nPUT {{url}}/users/me\n```\n\n---\n\n### Authentication\n\nBearer token authentication is required. Include the token in the `Authorization` header:\n\n```\nAuthorization: Bearer {{token}}\n```\n\n---\n\n### Request Headers\n\n| Header | Value |\n|---|---|\n| Content-Type | application/json |\n\n---\n\n### Request Body\n\nSend a JSON object with the fields you want to update:\n\n```json\n{\n  \"nom\": \"John Updated\"\n}\n```\n\n| Field | Type | Description |\n|---|---|---|\n| `nom` | string | The new name to assign to the current user |\n\n---\n\n### Response\n\n**200 OK** — The user profile was successfully updated. The response body contains the updated user object reflecting the new values."
+          },
+          "response": []
+        },
+        {
+          "name": "updatePassword",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"current_password\": \"password123\",\r\n    \"new_password\": \"newpassword456\",\r\n    \"new_password_confirmation\": \"newpassword456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/users/me/password",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "password"
+              ]
+            },
+            "description": "## Update Password\n\nUpdates the password of the currently authenticated user.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nPATCH {{url}}/users/me/password\n```\n\n---\n\n### Authentication\n\nBearer token authentication is required. The token must be included via the collection-level auth configuration using `{{token}}`.\n\n---\n\n### Request Headers\n\n| Header | Value |\n|--------|-------|\n| Accept | application/json |\n\n---\n\n### Request Body\n\nSend a JSON object with the following fields:\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| `current_password` | string | Yes | The user's current password |\n| `new_password` | string | Yes | The new password to set |\n| `new_password_confirmation` | string | Yes | Must match `new_password` |\n\n**Example:**\n\n```json\n{\n  \"current_password\": \"password123\",\n  \"new_password\": \"newpassword456\",\n  \"new_password_confirmation\": \"newpassword456\"\n}\n```\n\n---\n\n### Response\n\nReturns a success message upon a valid password change. Returns an error if the current password is incorrect or the new passwords do not match."
+          },
+          "response": []
+        }
+      ],
+      "description": "## Authentification & User Profile Management\n\nThis folder groups all endpoints related to user authentication and profile management. It covers the full authentication lifecycle — from account creation and login to session termination — as well as operations for viewing and updating the authenticated user's profile.\n\n---\n\n### Covered Operations\n\n- **Register** — Create a new user account with personal details and credentials.\n    \n- **Login** — Authenticate with email and password to receive a JWT access token.\n    \n- **Get Current User** — Retrieve the profile of the currently authenticated user.\n    \n- **Update Profile** — Modify the authenticated user's profile information.\n    \n- **Update Password** — Change the authenticated user's password securely.\n    \n- **Logout** — Invalidate the current session token to end the user's session.\n    \n\n---\n\n### Authentication\n\nMost endpoints in this folder require a valid Bearer token:\n\n```\nAuthorization: Bearer {{token}}\n\n ```\n\nThe `{{token}}` variable is automatically populated after a successful **Login** request and is inherited from the collection-level auth configuration. The **Register** and **Login** endpoints are publicly accessible and do not require a token."
+    },
+    {
+      "name": "Accounts",
+      "item": [
+        {
+          "name": "Create Account Courant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"type\": \"COURANT\",\r\n  \"balance\": 1000,\r\n  \"overdraft_limit\": 500,\r\n  \"monthly_fee\": 5,\r\n  \"daily_transfer_limit\": 2000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/accounts",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "accounts"
+              ]
+            },
+            "description": "## Create Courant Account\n\nCreates a new Courant (current/checking) bank account for the authenticated user.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nPOST {{url}}/accounts\n```\n\n---\n\n### Authentication\n\nBearer token authentication is required. The token is automatically applied via the collection-level auth configuration.\n\n| Header | Value |\n|--------|-------|\n| Authorization | Bearer {{token}} |\n\n---\n\n### Request Headers\n\n| Header | Value |\n|--------|-------|\n| Accept | application/json |\n\n---\n\n### Request Body\n\nThe request body must be sent as JSON.\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| `type` | string | Yes | Account type. Must be `\"Courant\"` |\n| `balance` | integer | Yes | Initial balance for the account |\n| `name` | string | No | Optional display name for the account |\n\n**Example:**\n\n```json\n{\n  \"type\": \"Courant\",\n  \"balance\": 1000\n}\n```\n\n---\n\n### Response\n\nOn success, returns the newly created account object with its details.\n\n---\n\n### Notes\n\n- The `type` field must be set to `\"Courant\"` to create a standard current account.\n- Make sure the `{{url}}` and `{{token}}` environment variables are set in the active environment before sending the request."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Account epargne",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"type\": \"EPARGNE\",\r\n    \"balance\": 5000,\r\n    \"interest_rate\": 3.5,\r\n    \"daily_transfer_limit\": 1000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/accounts",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "accounts"
+              ]
+            },
+            "description": "## Create Account (Épargne)\n\nCreates a new savings (Épargne) bank account for the currently authenticated user.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nPOST {{url}}/accounts\n\n ```\n\n---\n\n### Authentication\n\nBearer token authentication is required. The token must be included via the collection-level auth configuration:\n\n```\nAuthorization: Bearer {{token}}\n\n ```\n\n---\n\n### Request Headers\n\n| Header | Value |\n| --- | --- |\n| Accept | application/json |\n\n---\n\n### Request Body\n\nThe request body must be sent as raw JSON.\n\n| Field | Type | Required | Description |\n| --- | --- | --- | --- |\n| `type` | string | Yes | Account type. Must be `\"EPARGNE\"` for a savings account. Possible values: `EPARGNE`, `COURANT`, `MINEUR` |\n| `balance` | number | Yes | Initial deposit balance for the account |\n| `interest_rate` | number | Yes | Annual interest rate applied to the savings account |\n| `daily_transfer_limit` | number | Yes | Maximum amount that can be transferred per day |\n\n**Example Body:**\n\n``` json\n{\n  \"type\": \"EPARGNE\",\n  \"balance\": 5000,\n  \"interest_rate\": 3.5,\n  \"daily_transfer_limit\": 1000\n}\n\n ```\n\n---\n\n### Response\n\nOn success, returns the newly created account object with its assigned ID and details.\n\n---\n\n### Notes\n\n- The `EPARGNE` account type is a savings account that accrues interest based on the provided `interest_rate`.\n    \n- The `daily_transfer_limit` restricts the total outgoing transfers allowed per day from this account."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Account Mineur",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"type\": \"MINEUR\",\r\n    \"balance\": 200,\r\n    \"guardian_id\": 1,\r\n    \"daily_transfer_limit\": 500\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/accounts",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "accounts"
+              ]
+            },
+            "description": "## Create Account Mineur\n\nCreates a new minor (Mineur) bank account for the authenticated user.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nPOST {{url}}/accounts\n```\n\n---\n\n### Authentication\n\nBearer token authentication is required. The token is inherited from the collection level.\n\n```\nAuthorization: Bearer {{token}}\n```\n\n---\n\n### Request Body\n\nSend a JSON payload with the following fields:\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| `type` | string | Yes | Account type. Must be `\"Mineur\"` for a minor account. |\n| `balance` | integer | Yes | Initial balance for the account (e.g., `1000`). |\n\n**Example:**\n\n```json\n{\n  \"type\": \"Mineur\",\n  \"balance\": 1000\n}\n```\n\n---\n\n### Response\n\nOn success, returns the newly created account object with its details.\n\n---\n\n### Notes\n\n- A **Mineur** account is a bank account designated for minors.\n- Make sure the `{{url}}` and `{{token}}` environment variables are set in the active environment before sending this request."
+          },
+          "response": []
+        },
+        {
+          "name": "Accounts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/accounts",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "accounts"
+              ]
+            },
+            "description": "## Get All Accounts\n\nRetrieves a list of all bank accounts associated with the currently authenticated user.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nGET {{url}}/accounts\n```\n\n---\n\n### Authentication\n\nBearer token authentication is required. The token is inherited from the collection-level auth configuration.\n\n| Header | Value |\n|---|---|\n| Authorization | Bearer {{token}} |\n\n---\n\n### Request Headers\n\n| Header | Value |\n|---|---|\n| Accept | application/json |\n\n---\n\n### Response\n\nOn success, the endpoint returns an HTTP `200 OK` status with a JSON array of account objects belonging to the authenticated user.\n\n**Example Response:**\n\n```json\n[\n  {\n    \"id\": 1,\n    \"type\": \"savings\",\n    \"balance\": 15000.00,\n    \"currency\": \"DZD\",\n    \"owner\": {\n      \"id\": 1,\n      \"name\": \"John Doe\"\n    }\n  },\n  {\n    \"id\": 2,\n    \"type\": \"current\",\n    \"balance\": 3200.50,\n    \"currency\": \"DZD\",\n    \"owner\": {\n      \"id\": 1,\n      \"name\": \"John Doe\"\n    }\n  }\n]\n```\n\n---\n\n### Notes\n\n- Requires a valid Bearer token in the `Authorization` header.\n- Returns only accounts owned by or associated with the authenticated user."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Account",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/accounts/1",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "accounts",
+                "1"
+              ]
+            },
+            "description": "## Get Account\n\nRetrieves the details of a specific bank account by its unique ID.\n\n### Request\n\n**Method:** `GET`  \n**URL:** `{{url}}/accounts/1`\n\n### URL Notes\n\nThe `1` at the end of the URL represents the **account ID**. To retrieve a different account, replace `1` with the desired account's ID.\n\n### Variables\n\n| Variable | Description |\n| --- | --- |\n| `{{url}}` | The base URL of the API server |\n| `{{token}}` | The authentication token used for Bearer authorization |\n\n### Authentication\n\nThis request requires a **Bearer token** for authentication. The `{{token}}` variable should contain a valid token, which is sent in the `Authorization` header as:\n\n```\nAuthorization: Bearer {{token}}\n\n ```\n\n### Expected Behavior\n\nReturns the full details of the bank account with ID `1`, including account information such as account number, balance, owner details, and status."
+          },
+          "response": []
+        },
+        {
+          "name": "Add Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"user_id\": 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/accounts/1/co-owners",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "accounts",
+                "1",
+                "co-owners"
+              ]
+            },
+            "description": "## Add Member\n\nAdds a co-owner (member) to a specific bank account by providing the target user's ID. This allows multiple users to share ownership of a bank account.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nPOST {{url}}/accounts/2/co-owners\n\n ```\n\n---\n\n### Authentication\n\nBearer token authentication is required for this request. Include the token using the `{{token}}` variable, which must be set in your active environment.\n\n```\nAuthorization: Bearer {{token}}\n\n ```\n\n---\n\n### Request Headers\n\n| Key | Value |\n| --- | --- |\n| Accept | application/json |\n\n---\n\n### Request Body\n\nSend a raw JSON body containing the ID of the user to be added as a co-owner.\n\n``` json\n{\n  \"user_id\": 2\n}\n\n ```\n\n| Field | Type | Description |\n| --- | --- | --- |\n| `user_id` | integer | The ID of the user to add as a co-owner of the account. |\n\n---\n\n### Response\n\nOn success, the API returns a `200 OK` or `201 Created` status code along with a JSON object confirming the newly added co-owner's details and their association with the account."
+          },
+          "response": []
+        },
+        {
+          "name": "List Co-owner",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/accounts/1/co-owners",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "accounts",
+                "1",
+                "co-owners"
+              ]
+            },
+            "description": "## List Co-Owners of an Account\n\nRetrieves the list of co-owners (members) associated with a specific bank account. This endpoint returns all users who have shared access to the given account.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nGET {{url}}/accounts/1/co-owners\n```\n\n---\n\n### Authentication\n\nBearer token authentication is required. Include the `{{token}}` variable in the Authorization header:\n\n```\nAuthorization: Bearer {{token}}\n```\n\n---\n\n### Path Parameters\n\n| Parameter | Type | Required | Description |\n|-----------|------|----------|-------------|\n| `1` | Integer | Yes | The unique identifier of the bank account whose co-owners are being retrieved. |\n\n---\n\n### Headers\n\n| Key | Value | Description |\n|-----|-------|-------------|\n| `Accept` | `application/json` | Specifies that the response should be returned in JSON format. |\n\n---\n\n### Response\n\nReturns a list of co-owner objects associated with the specified account. Each object contains details about a co-owner who has shared access to the account.\n\n**Success Response — `200 OK`**\n\n```json\n[\n  {\n    \"id\": 1,\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Jane Smith\",\n    \"email\": \"jane.smith@example.com\"\n  }\n]\n```\n"
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Member",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/accounts/1/co-owners/2",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "accounts",
+                "1",
+                "co-owners",
+                "2"
+              ]
+            },
+            "description": "## Remove Member (Co-Owner) from Account\n\nRemoves a co-owner (member) from a specific bank account. This action permanently revokes the co-owner's access to the account.\n\n---\n\n### Path Parameters\n\n| Parameter | Type | Required | Description |\n| --- | --- | --- | --- |\n| `accountId` | integer | Yes | The unique identifier of the bank account from which the co-owner will be removed. |\n| `coOwnerId` | integer | Yes | The unique identifier of the co-owner (member) to be removed from the account. |\n\n**Example URL:** `{{url}}/accounts/2/co-owners/2`\n\n---\n\n### Authentication\n\nThis endpoint requires a **Bearer Token** for authorization.\n\nInclude the token in the `Authorization` header:\n\n```\nAuthorization: Bearer {{token}}\n\n ```\n\nEnsure the `{{token}}` variable is set in your active environment before sending the request.\n\n---\n\n### Response\n\n| Status Code | Description |\n| --- | --- |\n| `200 OK` | The co-owner was successfully removed. A confirmation response body may be returned. |\n| `204 No Content` | The co-owner was successfully removed. No response body is returned. |\n| `401 Unauthorized` | Authentication failed. Check that your `{{token}}` is valid and not expired. |\n| `403 Forbidden` | You do not have permission to remove a co-owner from this account. |\n| `404 Not Found` | The specified account or co-owner was not found. |"
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Guardien",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"user_id\": 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/accounts/1/guardian",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "accounts",
+                "1",
+                "guardian"
+              ]
+            },
+            "description": "## Assign Guardien\n\nAssigns a guardian to a specific bank account by its ID. A guardian is a user who is granted oversight or supervisory access to the account. This endpoint links the specified user as the guardian of the given account.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nPOST {{url}}/accounts/1/guardian\n```\n\n---\n\n### Path Parameters\n\n| Parameter  | Type    | Required | Description                                      |\n|------------|---------|----------|--------------------------------------------------|\n| `id`       | integer | Yes      | The unique identifier of the bank account (e.g., `1`) |\n\n---\n\n### Authentication\n\nBearer token required. Include the token in the `Authorization` header:\n\n```\nAuthorization: Bearer {{token}}\n```\n\nThe `{{token}}` variable is inherited from the collection-level authentication configuration.\n\n---\n\n### Request Headers\n\n| Header   | Value              | Description                          |\n|----------|--------------------|--------------------------------------|\n| `Accept` | `application/json` | Specifies that the response should be in JSON format |\n\n---\n\n### Request Body\n\nSend a raw JSON object with the following field:\n\n```json\n{\n  \"user_id\": 2\n}\n```\n\n| Field     | Type    | Required | Description                                                  |\n|-----------|---------|----------|--------------------------------------------------------------|\n| `user_id` | integer | Yes      | The unique identifier of the user to be assigned as guardian of the account |\n\n---\n\n### Notes & Behavior\n\n- The account must exist and belong to the authenticated user before a guardian can be assigned.\n- Only one guardian can be assigned per account at a time. Calling this endpoint again may replace the existing guardian.\n- The user referenced by `user_id` must be a valid, registered user in the system.\n- A successful request returns a confirmation response indicating the guardian has been assigned."
+          },
+          "response": []
+        },
+        {
+          "name": "Convert Account",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/accounts/3/convert",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "accounts",
+                "3",
+                "convert"
+              ]
+            },
+            "description": "## Convert Account\n\nConverts an existing bank account to a different account type (e.g., from a minor/Mineur account to a standard account).\n\n---\n\n### HTTP Method & Endpoint\n\n```\nPATCH {{url}}/accounts/3/convert\n\n ```\n\n---\n\n### Authentication\n\nBearer token authentication is required. The token is inherited from the collection level.\n\n```\nAuthorization: Bearer {{token}}\n\n ```\n\n---\n\n### Path Parameters\n\n| Parameter | Type | Required | Description |\n| --- | --- | --- | --- |\n| `id` | integer | Yes | The unique ID of the account to convert. |\n\n---\n\n### Request Headers\n\n| Header | Value |\n| --- | --- |\n| `Accept` | `application/json` |\n\n---\n\n### Response\n\nOn success, the endpoint returns the updated account object reflecting the new account type.\n\n---\n\n### Notes\n\n- Only accounts eligible for conversion can be targeted by this endpoint.\n    \n- The authenticated user must be the owner of the account."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/accounts/2",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "accounts",
+                "2"
+              ]
+            },
+            "description": "## Delete Account\n\nPermanently deletes a specific bank account by its ID. Once deleted, the account and all associated data cannot be recovered.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nDELETE {{url}}/accounts/2\n```\n\n---\n\n### Authentication\n\nBearer token authentication is required. The token must be included via the collection-level authorization header:\n\n```\nAuthorization: Bearer {{token}}\n```\n\n---\n\n### Path Parameters\n\n| Parameter | Type    | Required | Description                          |\n|-----------|---------|----------|--------------------------------------|\n| `id`      | integer | Yes      | The unique ID of the account to delete. (e.g., `2`) |\n\n---\n\n### Request Body\n\nNo request body is required for this endpoint.\n\n---\n\n### Response\n\n#### Success — `200 OK` or `204 No Content`\n\nThe account was successfully deleted. The response may be empty or contain a confirmation message.\n\n#### Error — `401 Unauthorized`\n\nThe request is missing a valid authentication token.\n\n#### Error — `403 Forbidden`\n\nThe authenticated user does not have permission to delete this account.\n\n#### Error — `404 Not Found`\n\nNo account was found with the specified ID.\n\n---\n\n### Notes\n\n- This action is **irreversible**. Ensure the correct account ID is provided before sending the request.\n- Only the account owner or an authorized user can perform this operation."
+          },
+          "response": []
+        },
+        {
+          "name": "Closure Consent",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{url}}/accounts/1/closure-consent",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "accounts",
+                "1",
+                "closure-consent"
+              ]
+            },
+            "description": "## Closure Consent\n\nRecords or updates a customer's consent to close their bank account. This endpoint is used to capture the account holder's explicit agreement before proceeding with the account closure process.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nPATCH {{url}}/accounts/1/closure-consent\n```\n\n---\n\n### Authentication\n\nBearer token required in Authorization header (inherited from collection):\n\n```\nAuthorization: Bearer {{token}}\n```\n\n---\n\n### Path Parameters\n\n| Parameter | Type | Required | Description |\n|-----------|------|----------|-------------|\n| `id` | integer | Yes | The unique ID of the account for which closure consent is being recorded |\n\n---\n\n### Response\n\n#### Success (200 OK)\n\nReturns a confirmation that the closure consent has been successfully recorded or updated for the specified account.\n\n#### Error Responses\n\n| Status | Description |\n|--------|-------------|\n| 401 | Unauthorized — missing or invalid token |\n| 403 | Forbidden — insufficient permissions |\n| 404 | Account not found |\n| 422 | Unprocessable Entity — invalid consent data |"
+          },
+          "response": []
+        },
+        {
+          "name": "Transfer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"sender_id\": 1,\r\n  \"receiver_id\": 2,\r\n  \"amount\": 250.00,\r\n  \"reason\": \"Rent payment\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/transfers",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "transfers"
+              ]
+            },
+            "description": "## Transfer Funds\n\nInitiates a money transfer from one bank account to another within the AlMadar Bank system.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nPOST {{url}}/transfers\n```\n\n---\n\n### Authentication\n\nThis endpoint requires a valid Bearer token. The token is automatically applied via the collection-level auth configuration.\n\n```\nAuthorization: Bearer {{token}}\n```\n\n---\n\n### Request Headers\n\n| Header | Value |\n|--------|-------|\n| Accept | application/json |\n\n---\n\n### Request Body\n\nThe request body must be sent as raw JSON.\n\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| `sender_id` | integer | Yes | The ID of the account sending the funds |\n| `receiver_id` | integer | Yes | The ID of the account receiving the funds |\n| `amount` | integer | Yes | The amount to transfer (in the account's currency) |\n| `reason` | string | Yes | A short description or reason for the transfer |\n\n**Example Body:**\n\n```json\n{\n  \"sender_id\": 1,\n  \"receiver_id\": 2,\n  \"amount\": 250,\n  \"reason\": \"Rent payment\"\n}\n```\n\n---\n\n### Responses\n\n| Status Code | Description |\n|-------------|-------------|\n| `201 Created` | Transfer was successfully initiated |\n| `400 Bad Request` | Invalid or missing fields in the request body |\n| `401 Unauthorized` | Missing or invalid authentication token |\n| `403 Forbidden` | The authenticated user does not have permission to perform this transfer |\n| `404 Not Found` | Sender or receiver account not found |\n| `422 Unprocessable Entity` | Business rule violation (e.g. insufficient funds) |"
+          },
+          "response": []
+        },
+        {
+          "name": "List Transfer",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/transfers",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "transfers"
+              ]
+            },
+            "description": "## List Transfers\n\nRetrieves a list of all transfers associated with the currently authenticated user.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nGET {{url}}/transfers\n```\n\n---\n\n### Authentication\n\nBearer token required in the Authorization header."
+          },
+          "response": []
+        }
+      ],
+      "description": "## Accounts\n\nThis folder contains all endpoints related to bank account management in the AlMadar Bank API. It covers the full lifecycle of an account — from creation and retrieval to membership management, type conversion, and deletion.\n\n### Endpoints Overview\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| `POST` | `/accounts` | Create a new **Courant** (current/checking) account |\n| `POST` | `/accounts` | Create a new **Mineur** (minor) account |\n| `GET` | `/accounts` | Retrieve all accounts for the authenticated user |\n| `GET` | `/accounts/{id}` | Retrieve details of a specific account by ID |\n| `POST` | `/accounts/{id}/co-owners` | Add a co-owner (member) to an account |\n| `DELETE` | `/accounts/{id}/co-owners/{coOwnerId}` | Remove a co-owner (member) from an account |\n| `PATCH` | `/accounts/{id}/convert` | Convert an account to a different type |\n| `DELETE` | `/accounts/{id}` | Permanently delete a specific account |\n\n### Authentication\n\nAll requests in this folder require **Bearer Token** authentication, inherited from the collection level. Ensure the `{{token}}` and `{{url}}` environment variables are set in your active environment before sending any request."
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "accounts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/admin/accounts",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "admin",
+                "accounts"
+              ]
+            },
+            "description": "## Get All Bank Accounts\n\nRetrieves a list of all bank accounts. This is an **admin-only** endpoint intended for administrative operations and oversight of account data.\n\n---\n\n### Endpoint\n\n| Method | URL |\n|--------|-----|\n| `GET` | `{{url}}/admin/accounts` |\n\n---\n\n### Authentication\n\nThis endpoint requires a **Bearer Token** for authorization. The token is supplied via the `{{token}}` variable from the active environment.\n\nInclude the following header in your request:\n\n```\nAuthorization: Bearer {{token}}\n```\n\nEnsure the `token` variable is set in your environment (e.g., `RestApi`) before sending the request.\n\n---\n\n### Notes\n\n- This endpoint is restricted to **admin users** only. Requests made with non-admin credentials will be rejected.\n- The `url` variable should be set to the base URL of the API server in your active environment.\n- No request body is required for this endpoint.\n- The response will contain a list of bank account records managed by the system."
+          },
+          "response": []
+        },
+        {
+          "name": "Block User",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/admin/accounts/1/block",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "admin",
+                "accounts",
+                "1",
+                "block"
+              ]
+            },
+            "description": "## Block User\n\nBlocks a specific user account by its ID. Once blocked, the account holder will be unable to perform transactions or access banking services until the account is unblocked by an administrator.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nPATCH {{url}}/admin/accounts/1/block\n```\n\n---\n\n### Authentication\n\nThis endpoint requires a valid Bearer token. The token must belong to an **admin** user.\n\n```\nAuthorization: Bearer {{token}}\n```\n\n---\n\n### Path Parameters\n\n| Parameter  | Type    | Required | Description                          |\n|------------|---------|----------|--------------------------------------|\n| `1`        | integer | Yes      | The ID of the account to be blocked  |\n\n---\n\n### Response\n\n**Success (200 OK)**\n\nReturns a confirmation that the account has been successfully blocked.\n\n---\n\n### Notes\n\n- Only admin users can perform this action.\n- Blocking an account does not delete it; it can be unblocked later using the Unblock User endpoint.\n- The `{{url}}` variable should be set in your active environment."
+          },
+          "response": []
+        },
+        {
+          "name": "Unblock User",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/admin/accounts/1/unblock",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "admin",
+                "accounts",
+                "1",
+                "unblock"
+              ]
+            },
+            "description": "## Unblock User\n\nUnblocks a previously blocked user account by its ID. Once unblocked, the account holder will regain the ability to perform transactions and access banking services.\n\n---\n\n### HTTP Method & Endpoint\n\n```\nPATCH {{url}}/admin/accounts/1/unblock\n\n ```\n\n---\n\n### Authentication\n\nBearer token required. Include the token in the Authorization header:\n\n```\nAuthorization: Bearer {{token}}\n\n ```\n\n---\n\n### Path Parameters\n\n| Parameter | Type | Required | Description |\n| --- | --- | --- | --- |\n| id | integer | Yes | The unique ID of the account to unblock |\n\n---\n\n### Response\n\nReturns a success message or the updated account status upon successful unblocking."
+          },
+          "response": []
+        },
+        {
+          "name": "Close Account",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/admin/accounts/1/close",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "admin",
+                "accounts",
+                "1",
+                "close"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "## Admin\n\nThis folder contains **admin-only** endpoints for managing bank accounts within the AlMadar Bank system. All requests require a valid Bearer token belonging to an administrator.\n\n### Endpoints Overview\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| `GET` | `{{url}}/admin/accounts` | Retrieve a list of all bank accounts |\n| `PATCH` | `{{url}}/admin/accounts/{id}/block` | Block a specific user account by ID |\n| `PATCH` | `{{url}}/admin/accounts/{id}/unblock` | Unblock a previously blocked user account by ID |\n\n### Authentication\n\nAll endpoints in this folder require a Bearer token passed in the `Authorization` header:\n\n```\nAuthorization: Bearer {{token}}\n```\n\n### Notes\n\n- These operations are restricted to **admin users** only.\n- Blocking an account suspends the user's ability to perform transactions and access banking services.\n- Blocking is reversible — a blocked account can be restored at any time using the **Unblock User** endpoint.\n- Ensure the `url` and `token` variables are configured in your active environment before sending requests."
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}
