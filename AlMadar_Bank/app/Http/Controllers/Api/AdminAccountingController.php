@@ -18,7 +18,7 @@ class AdminAccountingController extends Controller
     {
         try {
             $this->accountingService->processMonthlyRoutine();
-            return response()->json(['message' => 'Monthly routine executed successfully.']);
+            return response()->json(['message' => 'Monthly routine completed successfully.']);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

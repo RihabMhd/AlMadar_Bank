@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Account;
 use App\Repositories\AdminRepositoryInterface;
 use Exception;
 use Illuminate\Support\Collection;
@@ -15,6 +16,17 @@ class AdminService
     public function listAllAccounts(): Collection
     {
         return $this->adminRepository->getAll();
+    }
+
+    public function getAccount(int $id): Account
+    {
+        $account = $this->adminRepository->findById($id);
+
+        if (!$account) {
+            throw new Exception("Account not found.");
+        }
+
+        return $account;
     }
 
     public function updateAccountStatus(int $id, string $status): bool

@@ -15,6 +15,12 @@ class TransferController extends Controller
         $this->middleware('auth:api');
     }
 
+    public function index(): JsonResponse
+    {
+        $transfers = $this->transferService->getTransfersForUser(auth()->id());
+        return response()->json(['data' => $transfers]);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([

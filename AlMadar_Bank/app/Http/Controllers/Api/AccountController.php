@@ -23,13 +23,13 @@ class AccountController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'type'               => 'required|string|in:COURANT,MINEUR,EPARGNE',
-            'balance'            => 'sometimes|numeric|min:0',
-            'guardian_id'        => 'required_if:type,MINEUR|integer|exists:users,id',
-            'overdraft_limit'    => 'sometimes|numeric|min:0',
-            'interest_rate'      => 'sometimes|numeric|min:0',
-            'monthly_fee'        => 'sometimes|numeric|min:0',
-            'daily_transfer_limit' => 'sometimes|numeric|min:0',
+            'type'                => 'required|string|in:COURANT,MINEUR,EPARGNE',
+            'balance'             => 'sometimes|numeric|min:0',
+            'guardian_id'         => 'required_if:type,MINEUR|integer|exists:users,id',
+            'overdraft_limit'     => 'sometimes|numeric|min:0',
+            'interest_rate'       => 'sometimes|numeric|min:0',
+            'monthly_fee'         => 'sometimes|numeric|min:0',
+            'daily_transfer_limit'=> 'sometimes|numeric|min:0',
         ]);
 
         try {
@@ -47,6 +47,28 @@ class AccountController extends Controller
             return response()->json(['data' => $account]);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 404);
+        }
+    }
+
+    public function listCoHolders(int $accountId): JsonResponse
+    {
+        try {
+            $account = $this->accountService->getAccount($accountId);
+            $this->accountService->authorizeHolder($account);
+
+            $holders = $account->users()->withPivot('relation_type', 'accepted_closure')->get()
+                ->map(fn($user) => [
+                    'id'               => $user->id,
+                    'nom'              => $user->nom,
+                    'prenom'           => $user->prenom,
+                    'email'            => $user->email,
+                    'relation_type'    => $user->pivot->relation_type,
+                    'accepted_closure' => (bool) $user->pivot->accepted_closure,
+                ]);
+
+            return response()->json(['data' => $holders]);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 403);
         }
     }
 

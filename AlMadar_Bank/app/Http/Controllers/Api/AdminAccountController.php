@@ -20,6 +20,16 @@ class AdminAccountController extends Controller
         return response()->json(['data' => $accounts]);
     }
 
+    public function show(int $id): JsonResponse
+    {
+        try {
+            $account = $this->adminService->getAccount($id);
+            return response()->json(['data' => $account]);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
+        }
+    }
+
     public function block(int $id): JsonResponse
     {
         try {

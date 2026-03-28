@@ -6,6 +6,7 @@ use App\Models\Transfer;
 use App\Repositories\AccountRepositoryInterface;
 use App\Repositories\TransferRepositoryInterface;
 use App\Repositories\TransactionRepositoryInterface;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Exception;
@@ -28,19 +29,25 @@ class TransferService
         return $transfer;
     }
 
+    public function getTransfersForUser(int $userId): Collection
+    {
+        return Transfer::where('initiated_by', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
     public function createTransfer(array $data): Transfer
     {
         return DB::transaction(function () use ($data) {
 
             $amount   = (float) $data['amount'];
-            $senderId = (int)   $data['sender_id'];
             $userId   = auth()->id();
 
             if ($amount <= 0) {
                 throw new Exception("Amount must be positive.");
             }
 
-            $sender   = $this->accountRepository->findById($senderId);
+            $sender   = $this->accountRepository->findById((int) $data['sender_id']);
             $receiver = $this->accountRepository->findById((int) $data['receiver_id']);
 
             if (!$sender || !$receiver) {
